@@ -1,0 +1,52 @@
+---
+# tasks file for apps-top (top.yml)
+
+- name: install rrdtool
+  yum: name=rrdtool state=present
+
+- name: copy /mnt/cluster/www/top/nodes.txt
+  copy:
+    src: nodes.txt
+    dest: /mnt/cluster/www/top/nodes.txt
+  when: inventory_hostname == "gruffalo"
+
+- name: copy /mnt/cluster/www/top/cron-head.sh
+  copy:
+    src: cron-head.sh
+    dest: /mnt/cluster/www/top/cron-head.sh
+    mode: 0755
+  when: inventory_hostname == "gruffalo"
+
+- name: copy /mnt/cluster/www/top/db-graphs.sh
+  copy:
+    src: db-graphs.sh
+    dest: /mnt/cluster/www/top/db-graphs.sh
+    mode: 0755
+  when: inventory_hostname == "gruffalo"
+
+- name: copy /mnt/cluster/www/top/cron-node.sh
+  copy:
+    src: cron-node.sh
+    dest: /mnt/cluster/www/top/cron-node.sh
+    mode: 0755
+  when: inventory_hostname == "gruffalo"
+
+- name: copy /mnt/cluster/www/top/CreateStats.jsh
+  copy:
+    src: CreateStats.jsh
+    dest: /mnt/cluster/www/top/CreateStats.jsh
+    mode: 0755
+  when: inventory_hostname == "gruffalo"
+
+- name: create crontab entry for collecting stats
+  cron:
+    name: "update top-stats"
+    minute: "*"
+    job: "/usr/bin/flock -n /tmp/top.lock /mnt/cluster/www/top/cron-node.sh >/dev/null 2>&1"
+
+- name: create crontab entry for collating all stats
+  cron:
+    name: "collate top-stats"
+    minute: "*"
+    job: "/mnt/cluster/www/top/cron-head.sh >/dev/null 2>&1"
+  when: inventory_hostname == "gruffalo"

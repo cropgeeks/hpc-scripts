@@ -1,0 +1,23 @@
+---
+# tasks file for apps-top (cores.yml)
+
+- name: copy /mnt/cluster/www/hogswatch/cron.sh
+  copy:
+    src: cron-hogswatch.sh
+    dest: /mnt/cluster/www/hogswatch/cron.sh
+    mode: 0755
+  when: inventory_hostname == "gruffalo"
+
+- name: copy /mnt/cluster/www/hogswatch/CoreUsage.jsh
+  copy:
+    src: CoreUsage.jsh
+    dest: /mnt/cluster/www/hogswatch/CoreUsage.jsh
+    mode: 0755
+  when: inventory_hostname == "gruffalo"
+
+- name: create crontab entry for collecting stats
+  cron:
+    name: "update top-stats (cores)"
+    minute: "*"
+    job: "/mnt/cluster/www/hogswatch/cron.sh >/dev/null 2>&1"
+
