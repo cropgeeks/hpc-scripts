@@ -1,0 +1,52 @@
+<project name="diskusage" default="compile" basedir=".">
+
+	<property file="build.properties" />
+
+	<property name="src" location="src"/>
+	<property name="lib" location="lib"/>
+	<property name="jar" location="${lib}/diskUsage.jar"/>
+	<property name="cls" location="classes"/>
+
+	<target name="init">
+		<mkdir dir="${cls}"/>
+	</target>
+
+	<!-- Development classpath -->
+	<path id="project.classpath">
+		<fileset dir="${lib}">
+			<exclude name="**/diskUsage.jar"/>
+		</fileset>
+	</path>
+
+	<!-- Runtime classpath (manifest formatted) -->
+	<manifestclasspath property="jar.classpath" jarfile="${jar}">
+        <classpath>
+        	<fileset dir="${lib}"/>
+        </classpath>
+    </manifestclasspath>
+
+	<target name="compile" depends="init">
+		<javac srcdir="${src}" destdir="${cls}" source="11" target="11" debug="true" includeantruntime="false">
+			<classpath refid="project.classpath"/>
+		</javac>
+	</target>
+
+	<target name="clean">
+		<delete includeemptydirs="true">
+			<fileset dir="${cls}" includes="**/*"/>
+		</delete>
+	</target>
+
+	<target name="jar" depends="clean, compile">
+		<jar jarfile="${jar}">
+			<fileset dir="${cls}"/>
+			<manifest>
+				<attribute name="Class-Path" value="${jar.classpath}"/>
+				<attribute name="Main-Class" value="jhi.diskUsage.DailyScan"/>
+				<attribute name="Implementation-Version" value="1"/>
+				<attribute name="Application-Name" value="DiskUsage"/>
+			</manifest>
+		</jar>
+	</target>
+
+</project>
